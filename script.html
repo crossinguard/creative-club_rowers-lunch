@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destiny - Interactive Play Script</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border-radius: 15px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 3px solid #2c5530;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+        }
+
+        .title {
+            font-size: 3em;
+            color: #2c5530;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .author {
+            font-size: 1.2em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .character-selector {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #dee2e6;
+        }
+
+        .character-selector h3 {
+            margin-bottom: 15px;
+            color: #2c5530;
+            font-size: 1.3em;
+        }
+
+        .character-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .character-btn {
+            padding: 10px 20px;
+            border: 2px solid #2c5530;
+            background: white;
+            color: #2c5530;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .character-btn:hover {
+            background: #2c5530;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .character-btn.selected {
+            background: #4a7c59;
+            color: white;
+            border-color: #4a7c59;
+        }
+
+        .clear-btn {
+            padding: 8px 16px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .clear-btn:hover {
+            background: #c82333;
+        }
+
+        .cast-section, .setting-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #2c5530;
+        }
+
+        .cast-section h2, .setting-section h2 {
+            color: #2c5530;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .character-desc {
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #4a7c59;
+        }
+
+        .character-name {
+            font-weight: bold;
+            color: #2c5530;
+        }
+
+        .script-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .script-section h2 {
+            color: #2c5530;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 15px;
+        }
+
+        .line {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .line.highlighted {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid #f39c12;
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(243, 156, 18, 0.3);
+        }
+
+        .speaker {
+            font-weight: bold;
+            color: #2c5530;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stage-direction {
+            font-style: italic;
+            color: #666;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border-left: 3px solid #dee2e6;
+        }
+
+        .dialogue {
+            color: #333;
+            font-size: 1.05em;
+            line-height: 1.7;
+        }
+
+        .multi-character {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .multi-character .speaker {
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .character-line {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        .final-stage-direction {
+            background: #f1f3f4;
+            padding: 20px;
+            border-radius: 10px;
+            font-style: italic;
+            color: #555;
+            border: 2px dashed #dee2e6;
+            margin-top: 20px;
+        }
+
+        .renoir-info {
+            background: linear-gradient(135deg, #e8f5e8, #f0f8f0);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #4a7c59;
+        }
+
+        .renoir-info h3 {
+            color: #2c5530;
+            margin-bottom: 10px;
+        }
+
+        .renoir-info p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 15px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .character-buttons {
+                flex-direction: column;
+            }
+            
+            .character-btn {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Destiny</h1>
+            <p class="author">by Brett Egbert</p>
+        </div>
+
+        <div class="renoir-info">
+            <div style="text-align: center; margin-bottom: 15px;">
+                <img src="assets/Pierre-Auguste_Renoir_Lunch_at_the_Restaurant_Fournaise_(The_Rowers'_Lunch).jpg" 
+                     alt="Lunch at the Restaurant Fournaise by Pierre-Auguste Renoir" 
+                     style="width: 100%; max-width: 600px; height: auto; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.25); transition: transform 0.3s ease; display: block; margin: 0 auto;"
+                     onmouseover="this.style.transform='scale(1.02)'" 
+                     onmouseout="this.style.transform='scale(1)'">
+            </div>
+            <h3 style="text-align: center; margin-bottom: 5px;">Lunch at the Restaurant Fournaise</h3>
+            <p style="text-align: center; font-size: 0.95em;">Pierre-Auguste Renoir, 1875-1879</p>
+        </div>
+
+        <div class="character-selector">
+            <h3>Select Your Character to Highlight Your Lines:</h3>
+            <div class="character-buttons">
+                <button class="character-btn" data-character="KOLTON">Kolton Angus</button>
+                <button class="character-btn" data-character="BENJI">Benji Bertram</button>
+                <button class="character-btn" data-character="JADE">Jade Rosalynne</button>
+                <button class="character-btn" data-character="DESTINY">Destiny Petra</button>
+            </div>
+            <button class="clear-btn" onclick="clearSelection()">Clear Selection</button>
+        </div>
+
+        <div class="cast-section">
+            <h2>Cast of Characters</h2>
+            <div class="character-desc">
+                <span class="character-name">KOLTON ANGUS</span> - Overconfident ringleader with a weakness for grand schemes. Always thinks he has the perfect plan, even when evidence suggests otherwise. Drinks with authority.
+            </div>
+            <div class="character-desc">
+                <span class="character-name">BENJI BERTRAM</span> - The wavering accomplice. Goes along with schemes but gets nervous easily. Has his priorities and isn't afraid to voice them at inappropriate times.
+            </div>
+            <div class="character-desc">
+                <span class="character-name">JADE ROSALYNNE</span> - The group's voice of reason, though she still participates in their questionable adventures. Quick to spot trouble and quicker to say "I told you so."
+            </div>
+            <div class="character-desc">
+                <span class="character-name">DESTINY PETRA</span> - Enthusiastic social butterfly who appears at the worst possible moments. Loud, friendly, and completely oblivious to social cues.
+            </div>
+        </div>
+
+        <div class="setting-section">
+            <h2>Setting</h2>
+            <p>A private riverside garden. Grape-laden trellises create intimate walls around a small table draped in white cloth. The table sits at the water's edge, scattered with fresh fruit, wine bottles, and nearly empty glasses. Late afternoon light filters through the vines. The sound of gentle water flow.</p>
+            
+            <h2 style="margin-top: 20px;">At Rise</h2>
+            <p>KOLTON leans back in his chair, wine glass in hand. BENJI picks at grapes while JADE traces the rim of her glass, lost in thought. The remnants of a long lunch scatter the table. In the distance, the splash of oars grows closer as DESTINY paddles toward shore.</p>
+        </div>
+
+        <div class="script-section">
+            <h2>Scene</h2>
+
+            <div class="line" data-character="KOLTON">
+                <div class="speaker">KOLTON</div>
+                <div class="stage-direction">(several drinks deep, already mid conversation)</div>
+                <div class="dialogue">I'm telling you, there is no way anybody saw us. Act confident and nobody questions if you belong. Let's just enjoy the fact that we have nowhere to be and reap the rewards.</div>
+            </div>
+
+            <div class="line" data-character="BENJI">
+                <div class="speaker">BENJI</div>
+                <div class="dialogue">Yeahyeah, we are in the clear.</div>
+            </div>
+
+            <div class="line" data-character="JADE">
+                <div class="speaker">JADE</div>
+                <div class="dialogue">And how do you know this? Any number of people could've seen us.</div>
+            </div>
+
+            <div class="line" data-character="BENJI">
+                <div class="speaker">BENJI</div>
+                <div class="stage-direction">(to KOLTON)</div>
+                <div class="dialogue">Yeah, how can you be certain nobody saw us?</div>
+            </div>
+
+            <div class="line" data-character="KOLTON">
+                <div class="speaker">KOLTON</div>
+                <div class="dialogue">Because there is no reason anybody would be paying attention to us. The entire plan worked because we confi –</div>
+            </div>
+
+            <div class="line" data-character="JADE">
+                <div class="speaker">JADE</div>
+                <div class="dialogue">Shhhhshshshshhh! Someone is rowing at us.</div>
+            </div>
+
+            <div class="line" data-character="BENJI">
+                <div class="speaker">BENJI</div>
+                <div class="dialogue">Uhhh…what?</div>
+            </div>
+
+            <div class="line" data-character="JADE">
+                <div class="speaker">JADE</div>
+                <div class="dialogue">It's some woman in a big floppy hat. She is on a boat drifting towards us. She has been staring at me the whole time.</div>
+                <div class="stage-direction">(awkward pause as recognition enters JADE's face)</div>
+                <div class="dialogue">So umm, we might need to bail.</div>
+            </div>
+
+            <div class="line" data-character="KOLTON">
+                <div class="speaker">KOLTON</div>
+                <div class="stage-direction">(without looking)</div>
+                <div class="dialogue">We are fine, let's –</div>
+            </div>
+
+            <div class="line" data-character="DESTINY">
+                <div class="speaker">DESTINY (offstage)</div>
+                <div class="dialogue">OH HULLO!</div>
+            </div>
+
+            <div class="line" data-character="JADE">
+                <div class="speaker">JADE</div>
+                <div class="dialogue">Destiny found us.</div>
+            </div>
+
+            <div class="line" data-character="KOLTON">
+                <div class="speaker">KOLTON</div>
+                <div class="dialogue">Play it cool.</div>
+            </div>
+
+            <div class="line" data-character="DESTINY">
+                <div class="speaker">DESTINY</div>
+                <div class="stage-direction">(her boat gently bumps against the shore nearby as she awkwardly tries to figure out how to exit her boat)</div>
+                <div class="dialogue">HEYOOOOO! I SAW YOU ALL EATING AND JUST HAD TO COME OVER. IT'S A BEAUTIFUL DAY FOR A ROW.</div>
+            </div>
+
+            <div class="line" data-character="BENJI">
+                <div class="speaker">BENJI</div>
+                <div class="stage-direction">(quietly, aside to the group)</div>
+                <div class="dialogue">Why is she yelling? Who is that?</div>
+            </div>
+
+            <div class="line" data-character="KOLTON">
+                <div class="speaker">KOLTON</div>
+                <div class="stage-direction">(ignoring BENJI)</div>
+                <div class="dialogue">Great to see you Dest(iny?)! Sorry about the timing, we are actually about to take off. Tons to do! We'll have to catch up another time.</div>
+            </div>
+
+            <div class="line" data-character="DESTINY">
+                <div class="speaker">DESTINY</div>
+                <div class="stage-direction">(struggling to get out, her boat floating back away from shore every time she attempts to move forward)</div>
+                <div class="dialogue">WHAT?!? LET ME GET OUT THIS BOAT SO I CAN HEAR YOU!</div>
+            </div>
+
+            <div class="multi-character">
+                <div class="speaker">KOLTON && BENJI && JADE</div>
+                <div class="stage-direction">(at once-ish, don't think just do)</div>
+                <div class="character-line" data-character="KOLTON"><strong>KOLTON</strong> No need, we are leaving!</div>
+                <div class="character-line" data-character="BENJI"><strong>BENJI</strong> Sounds goo…wait…what?</div>
+                <div class="character-line" data-character="JADE"><strong>JADE</strong> Please don't, I insist.</div>
+            </div>
+
+            <div class="line" data-character="KOLTON">
+                <div class="speaker">KOLTON</div>
+                <div class="stage-direction">(quiet-ish to the table)</div>
+                <div class="dialogue">Is she getting ou…yup, she getting out that boat.</div>
+            </div>
+
+            <div class="line" data-character="DESTINY">
+                <div class="speaker">DESTINY</div>
+                <div class="stage-direction">(still a load struggle)</div>
+                <div class="dialogue">YOU GOT CHEESE? I LIKE CHEESE WITH MY WINE. HOLD UP, I'M ON MY WAY.</div>
+            </div>
+
+            <div class="line" data-character="JADE">
+                <div class="speaker">JADE</div>
+                <div class="stage-direction">(trying to ignore the awkwardness coming from the boat)</div>
+                <div class="dialogue">We gotta go for real. Destiny is making too noise, that mustache guy with the clipboard is gesturing at us.</div>
+            </div>
+
+            <div class="line" data-character="BENJI">
+                <div class="speaker">BENJI</div>
+                <div class="dialogue">I ordered bread, just hold up.</div>
+            </div>
+
+            <div class="line" data-character="KOLTON">
+                <div class="speaker">KOLTON</div>
+                <div class="dialogue">We are drawing too much attention. We have to move.</div>
+            </div>
+
+            <div class="final-stage-direction">
+                (the group comprised of KOLTON, BENJI, and JADE get up from the table and try to quietly exit the garden. BENJI carries a box of leftovers and is snatching bread from a nearby vacant table). DESTINY continues to struggle to get out the boat, loudly talking to a group she imagines is still present. A man with a clipboard rocking a bitchin' mustache approaches the group as they slink along the exterior garden wall towards the exit.
+            </div>
+
+            <div class="line" data-character="MUSTACHE MAN">
+                <div class="speaker">MUSTACHE MAN</div>
+                <div class="stage-direction">(make it spicy)</div>
+                <div class="dialogue">PAR-DON! I do not believe you all are members of this country club. I am –</div>
+                <div class="dialogue">EXCUSE ME! I am talking to you three! I can see you. You need to —</div>
+                <div class="dialogue">SECURITY! Remove these trespassers!</div>
+            </div>
+
+            <div class="line" data-character="JADE">
+                <div class="speaker">JADE</div>
+                <div class="dialogue">Yup, no way anybody saw us! The Confidence Crew strikes again!</div>
+            </div>
+
+            <div class="final-stage-direction">
+                (the group rushes out the door, laughing as they break free. MUSTACHE MAN retrieves a printed security photo of the group entering the garden that afternoon. He writers "DO NOT ADMIT" and adds the photo to a cork board in the back office)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedCharacter = null;
+
+        // Add event listeners to character buttons
+        document.querySelectorAll('.character-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const character = this.getAttribute('data-character');
+                selectCharacter(character);
+                
+                // Update button states
+                document.querySelectorAll('.character-btn').forEach(b => b.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+
+        function selectCharacter(character) {
+            selectedCharacter = character;
+            highlightLines();
+        }
+
+        function highlightLines() {
+            // Clear all highlights
+            document.querySelectorAll('.line').forEach(line => {
+                line.classList.remove('highlighted');
+            });
+            
+            document.querySelectorAll('.character-line').forEach(line => {
+                line.classList.remove('highlighted');
+            });
+
+            if (selectedCharacter) {
+                // Highlight regular lines
+                document.querySelectorAll(`.line[data-character="${selectedCharacter}"]`).forEach(line => {
+                    line.classList.add('highlighted');
+                });
+                
+                // Highlight multi-character lines
+                document.querySelectorAll(`.character-line[data-character="${selectedCharacter}"]`).forEach(line => {
+                    line.classList.add('highlighted');
+                });
+            }
+        }
+
+        function clearSelection() {
+            selectedCharacter = null;
+            document.querySelectorAll('.character-btn').forEach(btn => btn.classList.remove('selected'));
+            document.querySelectorAll('.line').forEach(line => line.classList.remove('highlighted'));
+            document.querySelectorAll('.character-line').forEach(line => line.classList.remove('highlighted'));
+        }
+    </script>
+</body>
+</html>
